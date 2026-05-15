@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet App | Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="navbar">
+            <h2>💰 FinanceFlow</h2>
+            <div class="user-info">
+                <span class="user-email" id="userEmail">Loading...</span>
+                <button class="btn btn-danger btn-small logout-btn" id="logoutBtn">Sign Out</button>
+            </div>
+        </nav>
+        
+        <div class="container">
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card income">
+                    <div class="stat-label">Total Income</div>
+                    <div class="stat-value income" id="totalIncome">R$ 0.00</div>
+                </div>
+                <div class="stat-card expense">
+                    <div class="stat-label">Total Expenses</div>
+                    <div class="stat-value expense" id="totalExpenses">R$ 0.00</div>
+                </div>
+                <div class="stat-card balance">
+                    <div class="stat-label">Current Balance</div>
+                    <div class="stat-value balance" id="balance">R$ 0.00</div>
+                </div>
+            </div>
+            
+            <!-- Month Navigation -->
+            <div class="form-card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <button class="btn btn-secondary" onclick="previousMonth()">← Previous</button>
+                    <h3 id="currentMonth">Loading...</h3>
+                    <button class="btn btn-secondary" onclick="nextMonth()">Next →</button>
+                    <button class="btn btn-primary" onclick="exportPDF()">📄 Export PDF</button>
+                </div>
+            </div>
+            
+            <!-- Chart & Categories Row -->
+            <div class="stats-grid">
+                <div class="form-card">
+                    <h3>📊 Spending Analytics</h3>
+                    <canvas id="expenseChart" height="200"></canvas>
+                </div>
+                
+                <div class="form-card">
+                    <h3>🏷️ Expenses by Category</h3>
+                    <div id="categoriesList">
+                        <div class="loading">Loading...</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Budget Limits -->
+            <div class="form-card">
+                <h3>🎯 Monthly Budget Limits</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="budgetCategory">Category</label>
+                        <select id="budgetCategory">
+                            <option value="Food">Food</option>
+                            <option value="Transport">Transport</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Shopping">Shopping</option>
+                            <option value="Bills">Bills</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="budgetAmount">Budget (R$)</label>
+                        <input type="number" id="budgetAmount" placeholder="1000">
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-primary" onclick="setBudget()" style="margin-top: 28px;">Set Budget</button>
+                    </div>
+                </div>
+                <div id="budgetStatus"></div>
+            </div>
+            
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <h3>🔍 Filter Transactions</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="filterMonth">Month</label>
+                        <select id="filterMonth">
+                            <option value="all">All Months</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filterCategory">Category</label>
+                        <select id="filterCategory">
+                            <option value="all">All Categories</option>
+                            <option value="Food">Food</option>
+                            <option value="Transport">Transport</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Shopping">Shopping</option>
+                            <option value="Bills">Bills</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="searchTitle">Search</label>
+                        <input type="text" id="searchTitle" placeholder="Search by title...">
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-primary" onclick="applyFilters()" style="margin-top: 28px;">Apply</button>
+                        <button class="btn btn-secondary" onclick="clearFilters()" style="margin-top: 28px;">Clear</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Add Transaction -->
+            <div class="form-card">
+                <h3>➕ Add New Transaction</h3>
+                <form id="transactionForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="title">Title</label>
+                            <input type="text" id="title" required placeholder="Salary, Groceries...">
+                        </div>
+                        <div class="form-group">
+                            <label for="amount">Amount</label>
+                            <input type="number" id="amount" step="0.01" required placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label for="type">Type</label>
+                            <select id="type" required>
+                                <option value="expense">Expense</option>
+                                <option value="income">Income</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="category">Category</label>
+                            <select id="category" required>
+                                <option value="Food">Food</option>
+                                <option value="Transport">Transport</option>
+                                <option value="Entertainment">Entertainment</option>
+                                <option value="Shopping">Shopping</option>
+                                <option value="Bills">Bills</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="date">Date</label>
+                            <input type="date" id="date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="note">Note</label>
+                            <textarea id="note" rows="1" placeholder="Optional..."></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Transaction</button>
+                </form>
+            </div>
+            
+            <!-- Transactions List -->
+            <div class="transactions-card">
+                <div class="transactions-header">
+                    <h3>📝 Recent Transactions</h3>
+                    <span class="transaction-count" id="transactionCount"></span>
+                </div>
+                <div id="transactionsList">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading transactions...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
