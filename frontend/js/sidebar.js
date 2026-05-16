@@ -6,27 +6,24 @@ export const Sidebar = {
     const sidebarContainer = document.getElementById('sidebar-container');
     if (!sidebarContainer) return;
 
-    // Buscar dados do usuário logado
-    let userFirstName = 'Usuário';
+    // Get user info from token or API
+    let firstName = 'User';
     try {
+      // Try to decode user info from token
       const token = localStorage.getItem('token');
       if (token) {
-        // Decodificar token para pegar o ID do usuário
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-        const decoded = JSON.parse(jsonPayload);
-        
-        // Buscar usuário pelo ID para pegar o nome
-        const userData = await API.get(`/auth/me`);
-        if (userData && userData.name) {
-          userFirstName = userData.name.split(' ')[0];
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload && payload.id) {
+          // Fetch user details to get name
+          const userData = await API.get('/auth/me');
+          if (userData && userData.name) {
+            firstName = userData.name.split(' ')[0]; // Get first name only
+          }
         }
       }
     } catch (error) {
-      console.log('Could not fetch user name, using default');
+      console.warn('Could not fetch user name:', error);
+      firstName = 'User';
     }
 
     sidebarContainer.innerHTML = `
@@ -54,10 +51,10 @@ export const Sidebar = {
         </ul>
 
         <div class="sidebar-user-profile" style="display: flex; align-items: center; gap: 12px; padding: 16px 8px; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.08); margin-bottom: 8px;">
-          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${userFirstName}" alt="Avatar" style="width: 36px; height: 36px; border-radius: 50%; background: var(--grad-accent); padding: 2px;">
+          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${firstName}" alt="Avatar" style="width: 36px; height: 36px; border-radius: 50%; background: var(--grad-accent); padding: 2px;">
           <div class="user-info-text" style="display: flex; flex-direction: column;">
-            <span style="font-size: 13px; font-weight: 600; color: #ffffff;">👤 ${userFirstName}</span>
-            <span style="font-size: 11px; color: #94a3b8;">✅ Verified</span>
+            <span style="font-size: 13px; font-weight: 600; color: #ffffff;">👋 ${firstName}</span>
+            <span style="font-size: 11px; color: #94a3b8;">✅ Active</span>
           </div>
         </div>
 
