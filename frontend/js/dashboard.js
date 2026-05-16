@@ -1,423 +1,339 @@
-// Load dashboard data
-let currentMonth = new Date().getMonth() + 1;
-let currentYear = new Date().getFullYear();
+// Dashboard Module
 
-async function loadDashboard() {
-    await loadTransactions();
-    await loadSummary();
-}
-
-let allTransactions = [];
-let currentFilters = {
-    month: 'all',
-    category: 'all',
-    search: ''
-};
-
-async function loadTransactions() {
-    try {
-        const result = await api.getTransactions();
-        allTransactions = result.transactions || [];
-        applyFilters();
-    } catch (error) {
-        showAlert('Error loading transactions: ' + error.message, 'error');
+class Dashboard {
+    constructor() {
+        this.currentMonth = new Date().getMonth() + 1;
+        this.currentYear = new Date().getFullYear();
+        this.summary = null;
+        this.transactions = [];
+        this.charts = {};
     }
-}
 
-function applyFilters() {
-    currentFilters = {
-        month: document.getElementById('filterMonth').value,
-        category: document.getElementById('filterCategory').value,
-        search: document.getElementById('searchTitle').value.toLowerCase()
-    };
-    
-    let filtered = [...allTransactions];
-    
-    // Filter by month
-    if (currentFilters.month !== 'all') {
-        filtered = filtered.filter(t => {
-            const transactionMonth = new Date(t.date).getMonth() + 1;
-            return transactionMonth === parseInt(currentFilters.month);
-        });
+    async load() {
+        await this.loadSummary();
+        await this.loadTransactions();
+        this.render();
     }
-    
-    // Filter by category
-    if (currentFilters.category !== 'all') {
-        filtered = filtered.filter(t => t.category === currentFilters.category);
-    }
-    
-    // Filter by search
-    if (currentFilters.search) {
-        filtered = filtered.filter(t => 
-            t.title.toLowerCase().includes(currentFilters.search) ||
-            (t.note && t.note.toLowerCase().includes(currentFilters.search))
-        );
-    }
-    
-    displayTransactions(filtered);
-    updateFilteredSummary(filtered);
-}
 
-function clearFilters() {
-    document.getElementById('filterMonth').value = 'all';
-    document.getElementById('filterCategory').value = 'all';
-    document.getElementById('searchTitle').value = '';
-    applyFilters();
-}
-
-function updateFilteredSummary(transactions) {
-    let income = 0;
-    let expenses = 0;
-    const byCategory = {};
-    
-    transactions.forEach(t => {
-        if (t.type === 'income') {
-            income += t.amount;
-        } else {
-            expenses += t.amount;
-            byCategory[t.category] = (byCategory[t.category] || 0) + t.amount;
-        }
-    });
-    
-    const balance = income - expenses;
-    
-    document.getElementById('totalIncome').textContent = `R$ ${income.toFixed(2)}`;
-    document.getElementById('totalExpenses').textContent = `R$ ${expenses.toFixed(2)}`;
-    document.getElementById('balance').textContent = `R$ ${balance.toFixed(2)}`;
-    
-    const balanceElement = document.getElementById('balance');
-    if (balance < 0) {
-        balanceElement.style.color = '#ef4444';
-    } else {
-        balanceElement.style.color = '#10b981';
-    }
-    
-    displayCategories(byCategory);
-    createExpenseChart(byCategory);
-}
-
-// Update existing displayTransactions to show filtered data
-function displayTransactions(transactions) {
-    const container = document.getElementById('transactionsList');
-    
-    if (!transactions.length) {
-        container.innerHTML = '<div class="empty-state">No transactions match your filters</div>';
-        return;
-    }
-    
-    container.innerHTML = transactions.map(transaction => `
-        <div class="transaction-item" data-id="${transaction._id}">
-            <div class="transaction-info">
-                <div class="transaction-title">${escapeHtml(transaction.title)}</div>
-                <div class="transaction-meta">
-                    ${transaction.category} • ${new Date(transaction.date).toLocaleDateString()}
-                    ${transaction.note ? ` • ${escapeHtml(transaction.note)}` : ''}
-                </div>
-            </div>
-            <div class="transaction-amount ${transaction.type}">
-                ${transaction.type === 'income' ? '+' : '-'} R$ ${transaction.amount.toFixed(2)}
-            </div>
-            <div class="transaction-actions">
-                <button class="btn btn-small btn-secondary" onclick="editTransaction('${transaction._id}')">Edit</button>
-                <button class="btn btn-small btn-danger" onclick="deleteTransaction('${transaction._id}')">Delete</button>
-            </div>
-        </div>
-    `).join('');
-};
-
-async function loadSummary() {
-    try {
-        const summary = await api.getMonthlySummary(currentMonth, currentYear);
-        displaySummary(summary);
-    } catch (error) {
-        console.error('Error loading summary:', error);
-    }
-}
-
-function displaySummary(summary) {
-    // Update stats
-    document.getElementById('totalIncome').textContent = `R$ ${summary.totalIncome?.toFixed(2) || '0.00'}`;
-    document.getElementById('totalExpenses').textContent = `R$ ${summary.totalExpenses?.toFixed(2) || '0.00'}`;
-    document.getElementById('balance').textContent = `R$ ${summary.balance?.toFixed(2) || '0.00'}`;
-    
-    const balanceElement = document.getElementById('balance');
-    if (summary.balance < 0) {
-        balanceElement.style.color = '#ef4444';
-    } else {
-        balanceElement.style.color = '#10b981';
-    }
-    
-    // Update month display
-    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
-                        'July', 'August', 'September', 'October', 'November', 'December'];
-    document.getElementById('currentMonth').textContent = `${monthNames[currentMonth - 1]} ${currentYear}`;
-    
-    // Display categories
-    displayCategories(summary.expensesByCategory || {});
-
-    let expenseChart = null;
-
-function displaySummary(summary) {
-    // ... existing code ...
-    
-    // Create/update chart
-    createExpenseChart(summary.expensesByCategory || {});
-}
-
-function createExpenseChart(categories) {
-    const ctx = document.getElementById('expenseChart').getContext('2d');
-    const labels = Object.keys(categories);
-    const data = Object.values(categories);
-    
-    if (expenseChart) {
-        expenseChart.destroy();
-    }
-    
-    if (labels.length === 0) {
-        return;
-    }
-    
-    expenseChart = new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: labels,
-            datasets: [{
-                data: data,
-                backgroundColor: [
-                    '#6366f1', '#10b981', '#f59e0b', '#ef4444', 
-                    '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'
-                ],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const value = context.raw;
-                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                            const percentage = ((value / total) * 100).toFixed(1);
-                            return `${context.label}: R$ ${value.toFixed(2)} (${percentage}%)`;
-                        }
-                    }
-                }
-            }
-        }
-    });
-}
-}
-
-function displayCategories(categories) {
-    const container = document.getElementById('categoriesList');
-    const entries = Object.entries(categories);
-    
-    if (!entries.length) {
-        container.innerHTML = '<div class="empty-state">No expenses this month</div>';
-        return;
-    }
-    
-    container.innerHTML = entries.map(([category, amount]) => `
-        <div class="category-item">
-            <span class="category-name">${escapeHtml(category)}</span>
-            <span class="category-amount">R$ ${amount.toFixed(2)}</span>
-        </div>
-    `).join('');
-}
-
-// Create transaction
-const transactionForm = document.getElementById('transactionForm');
-if (transactionForm) {
-    transactionForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const transactionData = {
-            title: document.getElementById('title').value,
-            amount: parseFloat(document.getElementById('amount').value),
-            type: document.getElementById('type').value,
-            category: document.getElementById('category').value,
-            date: document.getElementById('date').value,
-            note: document.getElementById('note').value || undefined
-        };
-        
+    async loadSummary() {
         try {
-            await api.createTransaction(transactionData);
-            showAlert('Transaction created successfully!', 'success');
-            transactionForm.reset();
-            loadDashboard();
+            this.summary = await api.getMonthlySummary(this.currentMonth, this.currentYear);
         } catch (error) {
-            showAlert('Error creating transaction: ' + error.message, 'error');
+            console.error('Error loading summary:', error);
+            this.summary = null;
         }
-    });
-}
-
-// Delete transaction
-async function deleteTransaction(id) {
-    if (!confirm('Are you sure you want to delete this transaction?')) return;
-    
-    try {
-        await api.deleteTransaction(id);
-        showAlert('Transaction deleted successfully!', 'success');
-        loadDashboard();
-    } catch (error) {
-        showAlert('Error deleting transaction: ' + error.message, 'error');
     }
-}
 
-// Edit transaction
-async function editTransaction(id) {
-    const newAmount = prompt('Enter new amount:');
-    if (!newAmount) return;
-    
-    try {
-        await api.updateTransaction(id, { amount: parseFloat(newAmount) });
-        showAlert('Transaction updated successfully!', 'success');
-        loadDashboard();
-    } catch (error) {
-        showAlert('Error updating transaction: ' + error.message, 'error');
-    }
-}
-
-// Month navigation
-function previousMonth() {
-    if (currentMonth === 1) {
-        currentMonth = 12;
-        currentYear--;
-    } else {
-        currentMonth--;
-    }
-    loadSummary();
-}
-
-function nextMonth() {
-    if (currentMonth === 12) {
-        currentMonth = 1;
-        currentYear++;
-    } else {
-        currentMonth++;
-    }
-    loadSummary();
-}
-
-// Helper function to escape HTML
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-// Load dashboard on page load
-if (window.location.pathname.includes('dashboard.html')) {
-    loadDashboard();
-}
-
-async function exportPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    
-    // Title
-    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
-                        'July', 'August', 'September', 'October', 'November', 'December'];
-    const title = `Wallet Report - ${monthNames[currentMonth - 1]} ${currentYear}`;
-    doc.setFontSize(20);
-    doc.text(title, 20, 20);
-    
-    // Get summary data
-    const income = document.getElementById('totalIncome').textContent;
-    const expenses = document.getElementById('totalExpenses').textContent;
-    const balance = document.getElementById('balance').textContent;
-    
-    // Add summary
-    doc.setFontSize(12);
-    doc.text(`Total Income: ${income}`, 20, 40);
-    doc.text(`Total Expenses: ${expenses}`, 20, 50);
-    doc.text(`Balance: ${balance}`, 20, 60);
-    
-    // Add transactions
-    doc.text('Recent Transactions:', 20, 80);
-    let y = 90;
-    const transactions = allTransactions.filter(t => {
-        const transactionMonth = new Date(t.date).getMonth() + 1;
-        return transactionMonth === currentMonth && new Date(t.date).getFullYear() === currentYear;
-    });
-    
-    transactions.slice(0, 10).forEach(t => {
-        if (y > 270) {
-            doc.addPage();
-            y = 20;
+    async loadTransactions() {
+        try {
+            const data = await api.getTransactions();
+            this.transactions = data.transactions || [];
+        } catch (error) {
+            console.error('Error loading transactions:', error);
+            this.transactions = [];
         }
-        doc.text(`${t.title} - ${t.type === 'income' ? '+' : '-'} R$ ${t.amount.toFixed(2)}`, 20, y);
-        y += 10;
-    });
-    
-    doc.save(`wallet_report_${currentMonth}_${currentYear}.pdf`);
-    showAlert('PDF exported successfully!', 'success');
-}
-
-// Load budgets from localStorage
-let budgets = JSON.parse(localStorage.getItem('budgets')) || {};
-
-function setBudget() {
-    const category = document.getElementById('budgetCategory').value;
-    const amount = parseFloat(document.getElementById('budgetAmount').value);
-    
-    if (isNaN(amount) || amount <= 0) {
-        showAlert('Please enter a valid amount', 'error');
-        return;
     }
-    
-    budgets[category] = amount;
-    localStorage.setItem('budgets', JSON.stringify(budgets));
-    showAlert(`Budget for ${category} set to R$ ${amount.toFixed(2)}`, 'success');
-    displayBudgetStatus();
-    document.getElementById('budgetAmount').value = '';
-}
 
-function displayBudgetStatus() {
-    const container = document.getElementById('budgetStatus');
-    const summary = window.currentSummary || { expensesByCategory: {} };
-    const expenses = summary.expensesByCategory || {};
-    
-    if (Object.keys(budgets).length === 0) {
-        container.innerHTML = '<p>No budgets set yet. Set budgets above to track spending limits.</p>';
-        return;
+    changeMonth(delta) {
+        let newMonth = this.currentMonth + delta;
+        let newYear = this.currentYear;
+
+        if (newMonth > 12) {
+            newMonth = 1;
+            newYear++;
+        } else if (newMonth < 1) {
+            newMonth = 12;
+            newYear--;
+        }
+
+        this.currentMonth = newMonth;
+        this.currentYear = newYear;
+        this.load();
     }
-    
-    let html = '<div class="category-grid">';
-    for (const [category, budget] of Object.entries(budgets)) {
-        const spent = expenses[category] || 0;
-        const percentage = (spent / budget) * 100;
-        const isOver = spent > budget;
+
+    render() {
+        const container = document.getElementById('dashboardContainer');
+        const monthNames = getMonthNames();
         
-        html += `
-            <div class="category-item" style="flex-direction: column; align-items: flex-start;">
-                <div style="display: flex; justify-content: space-between; width: 100%;">
-                    <strong>${category}</strong>
-                    <span class="${isOver ? 'text-danger' : ''}">
-                        R$ ${spent.toFixed(2)} / R$ ${budget.toFixed(2)}
-                    </span>
+        container.innerHTML = `
+            <div class="app-layout">
+                ${this.renderSidebar()}
+                <div class="main-wrapper">
+                    ${this.renderHeader()}
+                    <main class="main-content">
+                        <div class="page-header">
+                            <div>
+                                <h1>Dashboard</h1>
+                                <p>Welcome back, ${auth.getUser()?.email || 'User'}!</p>
+                            </div>
+                            <div class="month-selector">
+                                <button class="btn-icon" id="prevMonthBtn"><i class="fas fa-chevron-left"></i></button>
+                                <h3>${monthNames[this.currentMonth - 1]} ${this.currentYear}</h3>
+                                <button class="btn-icon" id="nextMonthBtn"><i class="fas fa-chevron-right"></i></button>
+                            </div>
+                        </div>
+
+                        ${this.renderStatsCards()}
+                        ${this.renderCharts()}
+                        ${this.renderRecentTransactions()}
+                    </main>
                 </div>
-                <div style="width: 100%; background: #e5e7eb; border-radius: 10px; margin-top: 0.5rem; overflow: hidden;">
-                    <div style="width: ${Math.min(percentage, 100)}%; background: ${percentage > 80 ? '#ef4444' : '#10b981'}; height: 8px;"></div>
+            </div>
+        `;
+
+        this.attachEvents();
+        this.renderChartsJS();
+    }
+
+    renderSidebar() {
+        return `
+            <aside class="sidebar">
+                <div class="logo-area">
+                    <div class="logo-icon"><i class="fas fa-wallet"></i></div>
+                    <span class="logo-text">WalletApiAPI</span>
                 </div>
-                ${isOver ? '<span style="color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem;">⚠️ Over budget!</span>' : ''}
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="#" class="nav-link active" data-page="dashboard"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+                    <li class="nav-item"><a href="#" class="nav-link" data-page="transactions"><i class="fas fa-exchange-alt"></i><span>Transactions</span></a></li>
+                    <li class="nav-item"><a href="#" class="nav-link" data-page="profile"><i class="fas fa-user"></i><span>Profile</span></a></li>
+                    <li class="nav-section">Support</li>
+                    <li class="nav-item"><a href="#" class="nav-link" id="logoutBtn"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
+                </ul>
+            </aside>
+        `;
+    }
+
+    renderHeader() {
+        const user = auth.getUser();
+        return `
+            <header class="app-header">
+                <button class="toggle-sidebar" id="toggleSidebarBtn"><i class="fas fa-bars"></i></button>
+                <div class="header-right">
+                    <div class="user-info">
+                        <div class="avatar">${getInitials(user?.email || 'User')}</div>
+                        <span>${user?.email || 'User'}</span>
+                    </div>
+                </div>
+            </header>
+        `;
+    }
+
+    renderStatsCards() {
+        if (!this.summary) {
+            return '<div class="loading">Loading statistics...</div>';
+        }
+
+        const totalIncome = this.summary.totalIncome || 0;
+        const totalExpenses = this.summary.totalExpenses || 0;
+        const balance = this.summary.balance || 0;
+
+        return `
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Total Income</span>
+                        <div class="stat-icon income-bg"><i class="fas fa-arrow-up"></i></div>
+                    </div>
+                    <div class="stat-value positive">${formatCurrency(totalIncome)}</div>
+                    <div class="stat-change">This month</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Total Expenses</span>
+                        <div class="stat-icon expense-bg"><i class="fas fa-arrow-down"></i></div>
+                    </div>
+                    <div class="stat-value negative">${formatCurrency(totalExpenses)}</div>
+                    <div class="stat-change">This month</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Net Balance</span>
+                        <div class="stat-icon balance-bg"><i class="fas fa-chart-line"></i></div>
+                    </div>
+                    <div class="stat-value ${balance >= 0 ? 'positive' : 'negative'}">${formatCurrency(balance)}</div>
+                    <div class="stat-change">${balance >= 0 ? 'Positive' : 'Negative'} balance</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Transactions</span>
+                        <div class="stat-icon primary-bg"><i class="fas fa-list"></i></div>
+                    </div>
+                    <div class="stat-value">${this.summary.totalTransactions || 0}</div>
+                    <div class="stat-change">Total transactions</div>
+                </div>
             </div>
         `;
     }
-    html += '</div>';
-    
-    container.innerHTML = html;
+
+    renderCharts() {
+        return `
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-title">Income vs Expenses</div>
+                    <canvas id="incomeExpenseChart" height="300"></canvas>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">Expenses by Category</div>
+                    <canvas id="categoryChart" height="300"></canvas>
+                </div>
+            </div>
+        `;
+    }
+
+    renderRecentTransactions() {
+        const recent = [...this.transactions].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+        
+        if (recent.length === 0) {
+            return `
+                <div class="chart-card">
+                    <div class="chart-title">Recent Transactions</div>
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>No transactions yet</p>
+                        <button class="btn btn-primary btn-sm" onclick="window.openAddTransactionModal()">Add Transaction</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        return `
+            <div class="chart-card">
+                <div class="chart-title">Recent Transactions</div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>Title</th><th>Amount</th><th>Category</th><th>Date</th><th></th>
+                        </thead>
+                        <tbody>
+                            ${recent.map(t => `
+                                <tr>
+                                    <td><strong>${escapeHtml(t.title)}</strong></td>
+                                    <td class="${t.type === 'income' ? 'text-success' : 'text-danger'}">
+                                        ${t.type === 'income' ? '+' : '-'}${formatCurrency(t.amount)}
+                                    </td>
+                                    <td>${escapeHtml(t.category)}</td>
+                                    <td>${formatDate(t.date)}</td>
+                                    <td>
+                                        <button class="btn-icon-sm" onclick="window.editTransaction('${t._id}')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer">
+                    <a href="#" onclick="window.navigateToPage('transactions'); return false;">View All Transactions →</a>
+                </div>
+            </div>
+        `;
+    }
+
+    renderChartsJS() {
+        if (!this.summary) return;
+
+        // Income vs Expense Chart
+        const incomeExpenseCtx = document.getElementById('incomeExpenseChart')?.getContext('2d');
+        if (incomeExpenseCtx && window.IncomeExpenseChart) {
+            window.IncomeExpenseChart.destroy();
+        }
+        if (incomeExpenseCtx) {
+            window.IncomeExpenseChart = new Chart(incomeExpenseCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Income', 'Expenses'],
+                    datasets: [{
+                        data: [this.summary.totalIncome || 0, this.summary.totalExpenses || 0],
+                        backgroundColor: [CHART_COLORS.success, CHART_COLORS.danger],
+                        borderWidth: 0,
+                        borderRadius: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        // Category Chart
+        const categoryCtx = document.getElementById('categoryChart')?.getContext('2d');
+        const categories = this.summary.expensesByCategory || {};
+        const labels = Object.keys(categories);
+        const data = Object.values(categories);
+
+        if (categoryCtx && window.CategoryChart) {
+            window.CategoryChart.destroy();
+        }
+        if (categoryCtx && labels.length > 0) {
+            window.CategoryChart = new Chart(categoryCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Amount Spent',
+                        data: data,
+                        backgroundColor: CHART_COLORS.primary,
+                        borderRadius: 8,
+                        barPercentage: 0.7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (value) => formatCurrency(value)
+                            }
+                        }
+                    }
+                }
+            });
+        } else if (categoryCtx) {
+            window.CategoryChart = new Chart(categoryCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['No Data'],
+                    datasets: [{ data: [0] }]
+                }
+            });
+        }
+    }
+
+    attachEvents() {
+        document.getElementById('prevMonthBtn')?.addEventListener('click', () => this.changeMonth(-1));
+        document.getElementById('nextMonthBtn')?.addEventListener('click', () => this.changeMonth(1));
+        
+        document.getElementById('toggleSidebarBtn')?.addEventListener('click', () => {
+            document.querySelector('.sidebar')?.classList.toggle('collapsed');
+        });
+
+        document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            auth.logout();
+            location.reload();
+        });
+
+        // Navigation
+        document.querySelectorAll('.nav-link[data-page]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const page = link.dataset.page;
+                if (page === 'dashboard') window.navigateToPage('dashboard');
+                else if (page === 'transactions') window.navigateToPage('transactions');
+                else if (page === 'profile') window.navigateToPage('profile');
+            });
+        });
+    }
 }
 
-// Update the existing displaySummary function
-const originalDisplaySummary = displaySummary;
-displaySummary = function(summary) {
-    originalDisplaySummary(summary);
-    window.currentSummary = summary;
-    displayBudgetStatus();
-};
+let dashboardInstance = null;

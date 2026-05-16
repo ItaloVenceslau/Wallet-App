@@ -1,66 +1,101 @@
-// API Configuration
-const API_URL = "https://wallet-app-pe7z.onrender.com/api";
+// API Service Layer
 
-const api = {
-    async request(endpoint, method = 'GET', data = null, requiresAuth = true) {
+class API {
+    constructor() {
+        this.token = localStorage.getItem(CONFIG.TOKEN_KEY);
+        this.baseURL = CONFIG_API_URL;
+    }
+
+    setToken(token) {
+        this.token = token;
+        if (token) {
+            localStorage.setItem(CONFIG.TOKEN_KEY, token);
+        } else {
+            localStorage.removeItem(CONFIG.TOKEN_KEY);
+        }
+    }
+
+    getToken() {
+        return this.token;
+    }
+
+    async request(endpoint, options = {}) {
         const headers = {
             'Content-Type': 'application/json',
+            ...options.headers
         };
 
-        if (requiresAuth) {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                throw new Error('No token found');
-            }
-            headers['Authorization'] = `Bearer ${token}`;
+        if (this.token) {
+            headers['Authorization'] = `Bearer ${this.token}`;
         }
 
         const config = {
-            method,
-            headers,
+            ...options,
+            headers
         };
 
-        if (data) {
-            config.body = JSON.stringify(data);
+        try {
+            const response = await fetch(`${CONFIG.API_URL}${endpoint}`, config);
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || data.message || 'Request failed');
+            }
+
+            return data;
+        } catch (error) {
+            console.error('API Error:', error);
+            throw error;
         }
+    }
 
-        const response = await fetch(`${API_URL}${endpoint}`, config);
-        const result = await response.json();
+    // Auth endpoints
+    async register(userData) {
+        return this.request('/auth/register', {
+            method: 'POST',
+            body: JSON.stringify(userData)
+        });
+    }
 
-        if (!response.ok) {
-            throw new Error(result.message || result.error || 'Request failed');
-        }
+    async login(credentials) {
+        return this.request('/auth/login', {
+            method: 'POST',
+            body: JSON.stringify(credentials)
+        });
+    }
 
-        return result;
-    },
-
-    // Auth endpoints (no token required)
-    register(userData) {
-        return this.request('/auth/register', 'POST', userData, false);
-    },
-
-    login(credentials) {
-        return this.request('/auth/login', 'POST', credentials, false);
-    },
-
-    // Transaction endpoints (token required)
-    getTransactions() {
+    // Transaction endpoints
+    async getTransactions() {
         return this.request('/transactions');
-    },
+    }
 
-    createTransaction(transactionData) {
-        return this.request('/transactions', 'POST', transactionData);
-    },
+    async getTransactionById(id) {
+        return this.request(`/transactions/${id}`);
+    }
 
-    updateTransaction(id, transactionData) {
-        return this.request(`/transactions/${id}`, 'PUT', transactionData);
-    },
+    async createTransaction(transaction) {
+        return this.request('/transactions', {
+            method: 'POST',
+            body: JSON.stringify(transaction)
+        });
+    }
 
-    deleteTransaction(id) {
-        return this.request(`/transactions/${id}`, 'DELETE');
-    },
+    async updateTransaction(id, transaction) {
+        return this.request(`/transactions/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(transaction)
+        });
+    }
 
-    getMonthlySummary(month, year) {
+    async deleteTransaction(id) {
+        return this.request(`/transactions/${id}`, {
+            method: 'DELETE'
+        });
+    }
+
+    async getMonthlySummary(month, year) {
         return this.request(`/transactions/summary/monthly?month=${month}&year=${year}`);
     }
-};
+}
+
+const api = new API();
