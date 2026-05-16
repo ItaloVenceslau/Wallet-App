@@ -3,41 +3,542 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Wallet App</title>
+    <title>Create Account | FinanceFlow</title>
     <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100;14..32,200;14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
+    <style>
+        /* Additional styles for register page */
+        .password-strength {
+            margin-top: 0.5rem;
+        }
+        
+        .strength-bar {
+            height: 4px;
+            background: var(--gray-200);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+        
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: width var(--transition);
+            border-radius: var(--radius-full);
+        }
+        
+        .strength-fill.weak { background: var(--danger); width: 25%; }
+        .strength-fill.fair { background: var(--warning); width: 50%; }
+        .strength-fill.good { background: var(--info); width: 75%; }
+        .strength-fill.strong { background: var(--success); width: 100%; }
+        
+        .strength-text {
+            font-size: 0.7rem;
+            color: var(--gray-500);
+        }
+        
+        .password-requirements {
+            background: var(--gray-50);
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            margin-top: 0.5rem;
+            font-size: 0.7rem;
+        }
+        
+        .requirement {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+            color: var(--gray-600);
+        }
+        
+        .requirement.valid {
+            color: var(--success);
+        }
+        
+        .requirement.invalid {
+            color: var(--danger);
+        }
+        
+        .terms-checkbox {
+            margin: 1.5rem 0;
+        }
+        
+        .terms-checkbox label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+            color: var(--gray-600);
+        }
+        
+        .terms-checkbox a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .terms-checkbox a:hover {
+            text-decoration: underline;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .success-animation {
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes progressPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .checking-availability {
+            animation: progressPulse 1s infinite;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
+    <div class="auth-container">
         <div class="auth-card">
-            <h1>Create Account</h1>
-            <p class="subtitle">Start tracking your finances today</p>
+            <!-- Logo -->
+            <div class="auth-header">
+                <div class="auth-logo">
+                    💰
+                </div>
+                <h1>Create Account</h1>
+                <p>Join FinanceFlow and take control of your finances</p>
+            </div>
             
+            <!-- Registration Form -->
             <form id="registerForm">
                 <div class="form-group">
-                    <label for="name">Full Name</label>
-                    <input type="text" id="name" name="name" required placeholder="John Doe">
+                    <label class="form-label required">Full Name</label>
+                    <input type="text" id="name" class="form-input" name="name" required placeholder="John Doe">
+                    <div class="form-help">Enter your full legal name</div>
                 </div>
                 
                 <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" name="email" required placeholder="john@example.com">
+                    <label class="form-label required">Email Address</label>
+                    <input type="email" id="email" class="form-input" name="email" required placeholder="john@example.com">
+                    <div class="form-help" id="emailHelp">We'll never share your email</div>
                 </div>
                 
                 <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required placeholder="At least 6 characters">
+                    <label class="form-label required">Password</label>
+                    <input type="password" id="password" class="form-input" name="password" required placeholder="Create a strong password">
+                    
+                    <!-- Password Strength Indicator -->
+                    <div class="password-strength">
+                        <div class="strength-bar">
+                            <div class="strength-fill" id="strengthFill"></div>
+                        </div>
+                        <div class="strength-text" id="strengthText"></div>
+                    </div>
+                    
+                    <!-- Password Requirements -->
+                    <div class="password-requirements" id="passwordRequirements">
+                        <div class="requirement" id="reqLength">
+                            <span>❌</span> At least 6 characters
+                        </div>
+                        <div class="requirement" id="reqUppercase">
+                            <span>❌</span> At least one uppercase letter
+                        </div>
+                        <div class="requirement" id="reqNumber">
+                            <span>❌</span> At least one number
+                        </div>
+                        <div class="requirement" id="reqSpecial">
+                            <span>❌</span> At least one special character (!@#$%^&*)
+                        </div>
+                    </div>
                 </div>
                 
-                <button type="submit" class="btn btn-primary">Create Account</button>
+                <div class="form-group">
+                    <label class="form-label required">Confirm Password</label>
+                    <input type="password" id="confirmPassword" class="form-input" required placeholder="Confirm your password">
+                    <div class="form-help" id="confirmHelp"></div>
+                </div>
+                
+                <!-- Terms and Conditions -->
+                <div class="terms-checkbox">
+                    <label>
+                        <input type="checkbox" id="termsCheckbox" required>
+                        <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></span>
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block" id="registerBtn">
+                    <span>✨</span> Create Free Account
+                </button>
             </form>
             
-            <p style="text-align: center; margin-top: 1.5rem;">
-                Already have an account? <a href="login.html" style="color: var(--primary);">Login</a>
-            </p>
+            <!-- Social Sign Up -->
+            <div class="social-login">
+                <p style="text-align: center; font-size: 0.75rem; color: var(--gray-500);">Or sign up with</p>
+                <div class="social-buttons">
+                    <button class="social-btn" onclick="alert('Google sign up coming soon!')">
+                        <span>🔵</span> Google
+                    </button>
+                    <button class="social-btn" onclick="alert('Facebook sign up coming soon!')">
+                        <span>🔷</span> Facebook
+                    </button>
+                    <button class="social-btn" onclick="alert('Apple sign up coming soon!')">
+                        <span>🍎</span> Apple
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Login Link -->
+            <div class="auth-footer">
+                <p>
+                    Already have an account? 
+                    <a href="login.html">Sign in instead</a>
+                </p>
+            </div>
         </div>
     </div>
     
     <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
+    <script>
+        // Check if already logged in
+        const token = localStorage.getItem('token');
+        if (token) {
+            window.location.href = 'dashboard.html';
+        }
+        
+        // DOM Elements
+        const nameInput = document.getElementById('name');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const termsCheckbox = document.getElementById('termsCheckbox');
+        const registerBtn = document.getElementById('registerBtn');
+        const registerForm = document.getElementById('registerForm');
+        
+        // Password strength calculation
+        function calculatePasswordStrength(password) {
+            let strength = 0;
+            const checks = {
+                length: password.length >= 6,
+                uppercase: /[A-Z]/.test(password),
+                number: /[0-9]/.test(password),
+                special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+            };
+            
+            // Update requirement UI
+            updateRequirement('reqLength', checks.length);
+            updateRequirement('reqUppercase', checks.uppercase);
+            updateRequirement('reqNumber', checks.number);
+            updateRequirement('reqSpecial', checks.special);
+            
+            // Calculate strength score
+            if (checks.length) strength++;
+            if (checks.uppercase) strength++;
+            if (checks.number) strength++;
+            if (checks.special) strength++;
+            
+            // Update strength bar
+            const strengthFill = document.getElementById('strengthFill');
+            const strengthText = document.getElementById('strengthText');
+            
+            if (password.length === 0) {
+                strengthFill.style.width = '0%';
+                strengthFill.className = 'strength-fill';
+                strengthText.textContent = '';
+                return;
+            }
+            
+            if (strength <= 1) {
+                strengthFill.className = 'strength-fill weak';
+                strengthText.textContent = 'Weak password';
+            } else if (strength === 2) {
+                strengthFill.className = 'strength-fill fair';
+                strengthText.textContent = 'Fair password';
+            } else if (strength === 3) {
+                strengthFill.className = 'strength-fill good';
+                strengthText.textContent = 'Good password';
+            } else {
+                strengthFill.className = 'strength-fill strong';
+                strengthText.textContent = 'Strong password!';
+            }
+            
+            return checks;
+        }
+        
+        function updateRequirement(id, isValid) {
+            const element = document.getElementById(id);
+            const icon = element.querySelector('span');
+            if (isValid) {
+                element.classList.add('valid');
+                element.classList.remove('invalid');
+                icon.textContent = '✅';
+            } else {
+                element.classList.add('invalid');
+                element.classList.remove('valid');
+                icon.textContent = '❌';
+            }
+        }
+        
+        // Check password match
+        function checkPasswordMatch() {
+            const password = passwordInput.value;
+            const confirm = confirmPasswordInput.value;
+            const confirmHelp = document.getElementById('confirmHelp');
+            
+            if (confirm.length === 0) {
+                confirmHelp.textContent = '';
+                return false;
+            }
+            
+            if (password === confirm) {
+                confirmHelp.textContent = '✓ Passwords match';
+                confirmHelp.style.color = 'var(--success)';
+                return true;
+            } else {
+                confirmHelp.textContent = '✗ Passwords do not match';
+                confirmHelp.style.color = 'var(--danger)';
+                return false;
+            }
+        }
+        
+        // Email availability check (debounced)
+        let emailCheckTimeout;
+        function checkEmailAvailability(email) {
+            clearTimeout(emailCheckTimeout);
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+            
+            emailCheckTimeout = setTimeout(async () => {
+                const emailHelp = document.getElementById('emailHelp');
+                emailHelp.innerHTML = '<span class="checking-availability">Checking availability...</span>';
+                
+                try {
+                    // This would call your API to check email existence
+                    // For now, just simulate
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    // In real implementation, call your backend endpoint
+                    // const result = await api.checkEmail(email);
+                    // if (result.exists) { show error }
+                    
+                    emailHelp.innerHTML = '✓ Email available';
+                    emailHelp.style.color = 'var(--success)';
+                } catch (error) {
+                    emailHelp.innerHTML = '✗ Email already registered';
+                    emailHelp.style.color = 'var(--danger)';
+                }
+            }, 500);
+        }
+        
+        // Form validation
+        function validateForm() {
+            const name = nameInput.value.trim();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            const confirmValid = checkPasswordMatch();
+            const termsAccepted = termsCheckbox.checked;
+            
+            if (!name) {
+                showError('Please enter your full name');
+                return false;
+            }
+            
+            if (name.length < 2) {
+                showError('Name must be at least 2 characters');
+                return false;
+            }
+            
+            if (!email) {
+                showError('Please enter your email address');
+                return false;
+            }
+            
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showError('Please enter a valid email address');
+                return false;
+            }
+            
+            if (!password) {
+                showError('Please create a password');
+                return false;
+            }
+            
+            const strength = calculatePasswordStrength(password);
+            if (!strength.length || !strength.uppercase || !strength.number) {
+                showError('Please meet all password requirements');
+                return false;
+            }
+            
+            if (!confirmValid) {
+                showError('Passwords do not match');
+                return false;
+            }
+            
+            if (!termsAccepted) {
+                showError('Please accept the Terms of Service');
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // Error handling
+        function showError(message) {
+            const existingError = document.querySelector('.form-error');
+            if (existingError) existingError.remove();
+            
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'form-error error-shake';
+            errorDiv.style.cssText = `
+                background: rgba(239, 68, 68, 0.1);
+                color: var(--danger);
+                padding: 0.75rem;
+                border-radius: var(--radius);
+                margin-bottom: 1rem;
+                font-size: 0.875rem;
+                text-align: center;
+            `;
+            errorDiv.innerHTML = `⚠️ ${message}`;
+            
+            const form = document.getElementById('registerForm');
+            form.insertBefore(errorDiv, form.firstChild);
+            
+            setTimeout(() => {
+                if (errorDiv) errorDiv.remove();
+            }, 3000);
+        }
+        
+        // Show success
+        function showSuccess(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'form-error success-animation';
+            successDiv.style.cssText = `
+                background: rgba(16, 185, 129, 0.1);
+                color: var(--success);
+                padding: 0.75rem;
+                border-radius: var(--radius);
+                margin-bottom: 1rem;
+                font-size: 0.875rem;
+                text-align: center;
+            `;
+            successDiv.innerHTML = `✓ ${message}`;
+            
+            const form = document.getElementById('registerForm');
+            form.insertBefore(successDiv, form.firstChild);
+            
+            setTimeout(() => {
+                if (successDiv) successDiv.remove();
+            }, 3000);
+        }
+        
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const toastContainer = document.querySelector('.toast-container') || (() => {
+                const container = document.createElement('div');
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+                return container;
+            })();
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <div class="toast-icon">${type === 'success' ? '✓' : '⚠️'}</div>
+                <div class="toast-message">${message}</div>
+                <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+        
+        // Form submission
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!validateForm()) return;
+            
+            const name = nameInput.value.trim();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            
+            // Show loading state
+            const originalText = registerBtn.innerHTML;
+            registerBtn.innerHTML = '<div class="spinner-sm" style="margin: 0 auto;"></div>';
+            registerBtn.disabled = true;
+            
+            try {
+                const result = await api.auth.register({ name, email, password });
+                localStorage.setItem('token', result.token);
+                
+                showSuccess('Account created successfully! Redirecting...');
+                showToast('Welcome to FinanceFlow! 🎉', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Registration error:', error);
+                
+                if (error.message.includes('already exists')) {
+                    showError('Email already registered. Please login instead.');
+                } else {
+                    showError(error.message || 'Registration failed. Please try again.');
+                }
+                
+                registerBtn.innerHTML = originalText;
+                registerBtn.disabled = false;
+            }
+        });
+        
+        // Event listeners
+        passwordInput.addEventListener('input', () => {
+            calculatePasswordStrength(passwordInput.value);
+            if (confirmPasswordInput.value) {
+                checkPasswordMatch();
+            }
+        });
+        
+        confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+        emailInput.addEventListener('input', (e) => checkEmailAvailability(e.target.value));
+        
+        // Real-time validation visual feedback
+        const inputs = [nameInput, emailInput, passwordInput, confirmPasswordInput];
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
+            
+            input.addEventListener('blur', function() {
+                if (!this.value) {
+                    this.parentElement.classList.remove('focused');
+                }
+            });
+        });
+        
+        // Add styles for focused inputs
+        const style = document.createElement('style');
+        style.textContent = `
+            .form-group.focused .form-label {
+                color: var(--primary);
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 </body>
 </html>

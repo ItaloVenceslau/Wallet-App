@@ -3,20 +3,384 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wallet App</title>
+    <title>FinanceFlow | Smart Financial Management</title>
     <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100;14..32,200;14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
+    <style>
+        /* Additional premium animations for landing page */
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius-2xl);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .hero-stat {
+            text-align: center;
+        }
+        
+        .hero-stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+        
+        .hero-stat-label {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .features-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: var(--radius-lg);
+            transition: all var(--transition);
+        }
+        
+        .feature-item:hover {
+            transform: translateX(8px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .feature-text h4 {
+            margin-bottom: 0.25rem;
+            color: var(--gray-800);
+        }
+        
+        .feature-text p {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            margin: 0;
+        }
+        
+        .testimonial-card {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius-xl);
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .testimonial-avatar {
+            width: 64px;
+            height: 64px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 2rem;
+        }
+        
+        .testimonial-text {
+            font-style: italic;
+            color: var(--gray-600);
+            margin-bottom: 1rem;
+        }
+        
+        .testimonial-name {
+            font-weight: 700;
+            color: var(--gray-800);
+        }
+        
+        .cta-section {
+            text-align: center;
+            padding: 4rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--info) 100%);
+            border-radius: var(--radius-2xl);
+            margin-top: 3rem;
+        }
+        
+        .cta-section h2 {
+            color: white;
+            margin-bottom: 1rem;
+        }
+        
+        .cta-section p {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @media (max-width: 768px) {
+            .hero-stats {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                margin-top: 2rem;
+            }
+            
+            .features-list {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .cta-section {
+                padding: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <div class="auth-card" style="text-align: center;">
-            <h1>💰 Wallet App</h1>
-            <p class="subtitle">Track your income and expenses effortlessly</p>
-            
-            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                <a href="login.html" class="btn btn-primary" style="text-decoration: none; display: inline-block;">Login</a>
-                <a href="register.html" class="btn btn-secondary" style="text-decoration: none; display: inline-block;">Register</a>
+    <!-- Premium Hero Section -->
+    <div class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <!-- Animated Logo -->
+                <div class="floating" style="margin-bottom: 2rem;">
+                    <div style="width: 80px; height: 80px; background: rgba(255, 255, 255, 0.2); border-radius: var(--radius-2xl); display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 3rem; backdrop-filter: blur(10px);">
+                        💰
+                    </div>
+                </div>
+                
+                <h1>Take Control of Your<br>Financial Future</h1>
+                <p>Track expenses, set budgets, and achieve your financial goals with our intelligent wallet management system.</p>
+                
+                <div class="hero-buttons">
+                    <a href="register.html" class="btn btn-light btn-lg">Get Started Free →</a>
+                    <a href="login.html" class="btn btn-outline-light btn-lg">Sign In</a>
+                </div>
+                
+                <!-- Trust Badges -->
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">10K+</div>
+                        <div class="hero-stat-label">Active Users</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">R$50M+</div>
+                        <div class="hero-stat-label">Tracked</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">99.9%</div>
+                        <div class="hero-stat-label">Uptime</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+    
+    <!-- Features Section -->
+    <div class="section">
+        <div class="container">
+            <div style="text-align: center; margin-bottom: 3rem;">
+                <h2>Why Choose FinanceFlow?</h2>
+                <p style="color: var(--gray-500); max-width: 600px; margin: 1rem auto 0;">Everything you need to manage your finances in one place</p>
+            </div>
+            
+            <div class="features-list">
+                <div class="feature-item">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-text">
+                        <h4>Real-time Analytics</h4>
+                        <p>Track your spending with beautiful charts</p>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">🎯</div>
+                    <div class="feature-text">
+                        <h4>Budget Goals</h4>
+                        <p>Set and achieve monthly targets</p>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">🔒</div>
+                    <div class="feature-text">
+                        <h4>Bank-Level Security</h4>
+                        <p>Your data is always protected</p>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">📱</div>
+                    <div class="feature-text">
+                        <h4>Mobile Responsive</h4>
+                        <p>Access anywhere, anytime</p>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">📄</div>
+                    <div class="feature-text">
+                        <h4>Export Reports</h4>
+                        <p>PDF reports for tax season</p>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-text">
+                        <h4>Lightning Fast</h4>
+                        <p>Optimized for speed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- How It Works -->
+    <div class="section" style="background: var(--gray-50);">
+        <div class="container">
+            <div style="text-align: center; margin-bottom: 3rem;">
+                <h2>How It Works</h2>
+                <p style="color: var(--gray-500);">Get started in just 3 simple steps</p>
+            </div>
+            
+            <div class="grid grid-cols-3" style="gap: 2rem;">
+                <div class="card" style="text-align: center;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">1️⃣</div>
+                    <h3>Create Account</h3>
+                    <p style="color: var(--gray-500);">Sign up for free in under 30 seconds</p>
+                </div>
+                
+                <div class="card" style="text-align: center;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">2️⃣</div>
+                    <h3>Add Transactions</h3>
+                    <p style="color: var(--gray-500);">Log your income and expenses easily</p>
+                </div>
+                
+                <div class="card" style="text-align: center;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">3️⃣</div>
+                    <h3>Track Progress</h3>
+                    <p style="color: var(--gray-500);">Watch your financial health improve</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Testimonials -->
+    <div class="section">
+        <div class="container">
+            <div style="text-align: center; margin-bottom: 3rem;">
+                <h2>Loved by Users Worldwide</h2>
+                <p style="color: var(--gray-500);">See what our community has to say</p>
+            </div>
+            
+            <div class="grid grid-cols-3" style="gap: 2rem;">
+                <div class="testimonial-card">
+                    <div class="testimonial-avatar">👨‍💼</div>
+                    <p class="testimonial-text">"FinanceFlow transformed how I manage my money. The budgeting features are incredible!"</p>
+                    <div class="testimonial-name">Carlos Silva</div>
+                    <div style="font-size: 0.875rem; color: var(--gray-500);">Software Engineer</div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="testimonial-avatar">👩‍🎨</div>
+                    <p class="testimonial-text">"Finally, a finance app that's actually beautiful and easy to use. Highly recommended!"</p>
+                    <div class="testimonial-name">Marina Costa</div>
+                    <div style="font-size: 0.875rem; color: var(--gray-500);">Freelance Designer</div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="testimonial-avatar">👨‍🌾</div>
+                    <p class="testimonial-text">"The analytics helped me save R$5000 in just 3 months. Life-changing!"</p>
+                    <div class="testimonial-name">Roberto Almeida</div>
+                    <div style="font-size: 0.875rem; color: var(--gray-500);">Small Business Owner</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- CTA Section -->
+    <div class="section">
+        <div class="container">
+            <div class="cta-section">
+                <h2>Ready to Take Control of Your Finances?</h2>
+                <p>Join thousands of users who are already managing their money smarter</p>
+                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <a href="register.html" class="btn btn-light btn-lg">Start Your Free Trial →</a>
+                    <a href="login.html" class="btn btn-outline-light btn-lg">Sign In</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Premium Footer -->
+    <footer style="background: var(--gray-900); color: var(--gray-400); padding: 3rem 0; margin-top: 4rem;">
+        <div class="container">
+            <div class="grid grid-cols-4" style="gap: 2rem;">
+                <div>
+                    <h4 style="color: white; margin-bottom: 1rem;">FinanceFlow</h4>
+                    <p style="font-size: 0.875rem;">Smart financial management for everyone</p>
+                </div>
+                <div>
+                    <h5 style="color: white; margin-bottom: 1rem;">Product</h5>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 0.5rem;"><a href="#" style="color: var(--gray-400); text-decoration: none;">Features</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="#" style="color: var(--gray-400); text-decoration: none;">Pricing</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="#" style="color: var(--gray-400); text-decoration: none;">Security</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 style="color: white; margin-bottom: 1rem;">Company</h5>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 0.5rem;"><a href="#" style="color: var(--gray-400); text-decoration: none;">About</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="#" style="color: var(--gray-400); text-decoration: none;">Blog</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="#" style="color: var(--gray-400); text-decoration: none;">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 style="color: white; margin-bottom: 1rem;">Legal</h5>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 0.5rem;"><a href="#" style="color: var(--gray-400); text-decoration: none;">Privacy</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="#" style="color: var(--gray-400); text-decoration: none;">Terms</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="#" style="color: var(--gray-400); text-decoration: none;">Cookie Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--gray-800);">
+                <p style="font-size: 0.875rem;">© 2024 FinanceFlow. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="js/auth.js"></script>
+    <script>
+        // Check if user is already logged in and redirect to dashboard
+        const token = localStorage.getItem('token');
+        if (token) {
+            window.location.href = 'dashboard.html';
+        }
+    </script>
 </body>
 </html>

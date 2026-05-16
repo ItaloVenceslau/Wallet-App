@@ -1,5 +1,4 @@
-
-
+// API Configuration
 const API_URL = process.env.BACKEND;
 
 const api = {
@@ -35,7 +34,7 @@ const api = {
         return result;
     },
 
-    // Auth
+    // Auth endpoints (no token required)
     register(userData) {
         return this.request('/auth/register', 'POST', userData, false);
     },
@@ -44,7 +43,7 @@ const api = {
         return this.request('/auth/login', 'POST', credentials, false);
     },
 
-    // Transactions
+    // Transaction endpoints (token required)
     getTransactions() {
         return this.request('/transactions');
     },
