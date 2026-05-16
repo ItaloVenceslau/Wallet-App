@@ -132,6 +132,7 @@
   cursor: pointer;
   transition: var(--transition);
   box-shadow: 0 4px 12px rgba(244, 63, 94, 0.2);
+  text-decoration: none;
 }
 
 .btn-action:hover {
@@ -158,29 +159,6 @@
   box-shadow: var(--shadow-sm);
   position: relative;
   overflow: hidden;
-}
-
-/* Background abstract shapes for cards */
-.metric-card-pattern {
-  position: absolute;
-  top: -20px;
-  right: -20px;
-  width: 120px;
-  height: 120px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.metric-card-pattern::after {
-  content: '';
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 80px;
-  height: 80px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 35% 65% 70% 30% / 30% 30% 70% 70%;
 }
 
 .metric-card-header {
@@ -214,6 +192,9 @@
   margin-top: 16px;
   position: relative;
   z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .card-income { background: var(--grad-income); }
@@ -235,6 +216,9 @@
   font-weight: 700;
   color: var(--text-main);
   margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .info-row {
@@ -245,9 +229,46 @@
   border-bottom: 1px dashed #f1f5f9;
 }
 
-.info-label { color: var(--text-muted); }
-.info-value { font-weight: 600; color: var(--text-main); }
-.empty-state-text { text-align: center; color: var(--text-muted); padding: 24px 0; }
+.info-label { 
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.info-value { 
+  font-weight: 600; 
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.empty-state-text { 
+  text-align: center; 
+  color: var(--text-muted); 
+  padding: 24px 0; 
+}
+
+/* Category Items Styling */
+.category-item {
+  margin-bottom: 16px;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+
+.category-item:hover {
+  background: var(--bg-input);
+  transform: translateX(4px);
+}
+
+/* Quick Metrics Extended */
+.quick-metrics-extended {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 2px solid var(--border);
+}
 
 /* Table Elements */
 .table-responsive { width: 100%; overflow-x: auto; }
@@ -262,10 +283,25 @@
 }
 .data-table td { padding: 16px; border-bottom: 1px solid #e2e8f0; font-size: 15px; }
 .data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover {
+  background: var(--bg-input);
+  transition: var(--transition);
+}
 
-.badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; }
+.badge { 
+  padding: 6px 12px; 
+  border-radius: 20px; 
+  font-size: 12px; 
+  font-weight: 600; 
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
 .badge.income { background: #e6f4ea; color: var(--text-success); }
 .badge.expense { background: #fce8e6; color: var(--text-danger); }
+
+.text-success { color: var(--text-success); }
+.text-danger { color: var(--text-danger); }
 
 /* Adaptive Responsive Configurations */
 @media (max-width: 900px) {
@@ -274,4 +310,10 @@
   .sidebar-brand { margin-bottom: 24px; padding: 0; }
   .sidebar-user-profile { border-top: none !important; padding: 8px 0 !important; }
   .main-content { margin-left: 80px; padding: 24px; }
+  .metric-value { font-size: 20px; }
+}
+
+@media (max-width: 640px) {
+  .metrics-grid { grid-template-columns: 1fr; }
+  .page-header { flex-direction: column; gap: 16px; }
 }

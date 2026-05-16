@@ -15,14 +15,15 @@
     <main class="main-content">
       <header class="page-header">
         <div class="page-title-area">
-          <h1>📊 Dashboard</h1>
-          <p>Overview of your projects and cash flow 💰</p>
+          <h1>📊 Financial Dashboard</h1>
+          <p>Complete overview of your cash flow and spending patterns 💰</p>
         </div>
         <a href="transactions.html" class="btn-action">
           <i data-lucide="plus" style="width: 16px; height: 16px;"></i> ✨ New Transaction
         </a>
       </header>
 
+      <!-- Metric Cards Grid -->
       <section class="metrics-grid">
         <div class="metric-card card-balance">
           <div class="metric-card-header">
@@ -50,31 +51,38 @@
 
         <div class="metric-card card-neutral">
           <div class="metric-card-header">
-            <span class="metric-title">📈 Monthly Count</span>
+            <span class="metric-title">📈 Total Transactions</span>
             <div class="metric-icon-wrapper"><i data-lucide="activity" style="width: 16px; height: 16px;"></i></div>
           </div>
           <div id="total-count" class="metric-value">0</div>
         </div>
       </section>
 
+      <!-- Expenses by Category Section -->
       <section class="content-block">
         <h2>📊 Expenses by Category</h2>
-        <p>Breakdown of current monthly costs processed by the system 📉</p>
+        <p>Detailed breakdown of your spending by category with percentage analysis 📉</p>
         
-        <div id="categories-list">
+        <div id="categories-list" style="margin-top: 20px;">
+          <!-- Categories will be injected here with progress bars -->
+          <div class="empty-state-text">Loading category data... 🔄</div>
         </div>
+      </section>
 
-        <div style="margin-top: 32px; border-top: 1px solid #e2e8f0; padding-top: 24px;">
-          <h2>📈 Quick Metrics</h2>
-          <div class="info-row">
-            <span class="info-label">📋 Total processed entries</span>
-            <span id="summary-count" class="info-value">0</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">📊 Average income amount</span>
-            <span id="summary-avg" class="info-value text-success">$0.00</span>
-          </div>
+      <!-- Quick Metrics Section using ALL summaryService data -->
+      <section class="content-block">
+        <h2>📈 Quick Metrics & Analytics</h2>
+        <p>Key financial indicators derived from your transaction data 🎯</p>
+        
+        <div class="info-row">
+          <span class="info-label">📋 Total Transactions Processed</span>
+          <span id="summary-count" class="info-value">0</span>
         </div>
+        <div class="info-row">
+          <span class="info-label">📊 Average Transaction Value (Income)</span>
+          <span id="summary-avg" class="info-value text-success">$0.00</span>
+        </div>
+        <!-- Additional metrics will be added dynamically by dashboard.js -->
       </section>
     </main>
   </div>
