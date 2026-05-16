@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BudgetFlow - Sign In</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <script src="https://unpkg.com"></script>
+</head>
+<body class="auth-page">
+
+  <main class="auth-card">
+    <div class="auth-header">
+      <div class="auth-icon-badge">
+        <i data-lucide="log-in" style="width: 24px; height: 24px;"></i>
+      </div>
+      <h2 class="auth-title">Budget Tracker</h2>
+      <p class="auth-subtitle">Manage your financial projects</p>
+    </div>
+
+    <form id="login-form">
+      <div class="form-group">
+        <label class="form-label">
+          <i data-lucide="mail" style="width: 14px; height: 14px;"></i> Email Address
+        </label>
+        <input type="email" id="login-email" class="form-input" placeholder="your@email.com" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          <i data-lucide="lock" style="width: 14px; height: 14px;"></i> Password
+        </label>
+        <input type="password" id="login-password" class="form-input" placeholder="••••••••" required>
+      </div>
+
+      <button type="submit" class="btn-submit">Sign In</button>
+    </form>
+
+    <div class="auth-footer">
+      Don't have an account? <a href="register.html">Sign up</a>
+    </div>
+  </main>
+
+  <script type="module">
+    import { Auth } from '../js/auth.js';
+    import { UI } from '../js/ui.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      Auth.checkGuestGuard();
+      if (window.lucide) window.lucide.createIcons();
+
+      document.getElementById('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+
+        try {
+          await Auth.login(email, password);
+          UI.showToast('Login successful!', 'success');
+          setTimeout(() => window.location.href = 'dashboard.html', 1000);
+        } catch (error) {
+          UI.showToast(error.message, 'error');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

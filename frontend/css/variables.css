@@ -1,0 +1,33 @@
+/* ==========================================================================
+   DESIGN SYSTEM: VARIABLES & TOKENS
+   ========================================================================== */
+:root {
+  /* Cores de Fundo (Fundo escuro/SaaS Theme) */
+  --bg-gradient-page: linear-gradient(135deg, #4f46e5, #1e1145, #7c3aed);
+  --bg-dashboard: #f8fafc;
+  --bg-sidebar: #130f26;
+  --bg-card-white: #ffffff;
+  --bg-input: #f0f4f9;
+
+  /* Gradientes de Destaque dos Cards Bento */
+  --grad-accent: linear-gradient(90deg, #ec4899, #f43f5e, #f97316);
+  --grad-income: linear-gradient(135deg, #10b981, #22c55e); /* Emerald to Green */
+  --grad-expense: linear-gradient(135deg, #f43f5e, #ec4899); /* Pink to Rose */
+  --grad-balance: linear-gradient(135deg, #6366f1, #a855f7); /* Indigo to Purple */
+  --grad-neutral: linear-gradient(135deg, #06b6d4, #3b82f6); /* Cyan to Blue */
+
+  /* Hierarquia de Cores de Texto */
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-purple: #9333ea;
+  --text-white: #ffffff;
+  --text-danger: #ef4444;
+  --text-success: #10b981;
+
+  /* Elementos Visuais e Bordas Suaves */
+  --radius-lg: 24px;
+  --radius-md: 12px;
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+  --transition: all 0.25s ease-in-out;
+}

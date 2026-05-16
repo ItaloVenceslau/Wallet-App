@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BudgetFlow - Transactions</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <script src="https://unpkg.com"></script>
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+      <header class="page-header">
+        <div class="page-title-area">
+          <h1>Transactions</h1>
+          <p>Manage and audit history logs for income and expenses</p>
+        </div>
+        <button id="btn-open-modal" class="btn-action">
+          <i data-lucide="plus" style="width: 16px; height: 16px;"></i> Add Entry
+        </button>
+      </header>
+
+      <!-- Logs Table Block -->
+      <section class="content-block">
+        <h2>Transaction History</h2>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Category</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="transactions-table-body">
+              <!-- Injected dynamically via js/transactions.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL FORM (Hidden by default via overlay class)
+       ========================================================================== -->
+  <div id="transaction-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>New Transaction</h2>
+        <button id="btn-close-modal" class="btn-close-modal"><i data-lucide="x"></i></button>
+      </div>
+
+      <form id="transaction-form">
+        <div class="form-group">
+          <label class="form-label">Transaction Title</label>
+          <input type="text" id="t-title" class="form-input" placeholder="e.g. Salary, Rent, Groceries" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label class="form-label">Value Amount ($)</label>
+            <input type="number" id="t-amount" class="form-input" step="0.01" placeholder="0.00" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Flow Type</label>
+            <select id="t-type" class="form-select" required>
+              <option value="income">Income (+)</option>
+              <option value="expense">Expense (-)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <input type="text" id="t-category" class="form-input" placeholder="e.g. Food, Utility, Leisure" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Competence Date</label>
+            <input type="date" id="t-date" class="form-input" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Additional Note (Optional)</label>
+          <input type="text" id="t-note" class="form-input" placeholder="Brief comment or observation description">
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" id="btn-cancel-modal" class="btn-cancel">Cancel</button>
+          <button type="submit" class="btn-action" style="box-shadow: none;">Save Transaction</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="../js/transactions.js"></script>
+</body>
+</html>
