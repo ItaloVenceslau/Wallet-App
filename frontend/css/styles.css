@@ -1523,3 +1523,8 @@ body {
 .summary-value.info {
   color: #3b82f6;
 }
+
+/* ===== AUTH PAGES BACKGROUND FIX ===== */
+.auth-page {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
