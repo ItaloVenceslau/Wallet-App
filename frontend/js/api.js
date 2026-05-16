@@ -1,7 +1,6 @@
 import { CONFIG } from './config.js';
 
 export const API = {
-  // Executes HTTP calls and automatically appends the Bearer token for security
   async request(endpoint, options = {}) {
     const token = localStorage.getItem('token');
     
@@ -19,7 +18,6 @@ export const API = {
     const data = await response.json();
 
     if (!response.ok) {
-      // If the token is invalid or expired (401), clear storage and redirect to login
       if (response.status === 401 && !endpoint.includes('/auth')) {
         localStorage.clear();
         window.location.href = '/pages/login.html';
