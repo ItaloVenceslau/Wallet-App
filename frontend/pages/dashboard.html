@@ -23,6 +23,7 @@
         </a>
       </header>
 
+      <!-- Period Selector will be injected here by JavaScript -->
       <!-- Metric Cards Grid -->
       <section class="metrics-grid">
         <div class="metric-card card-balance">
@@ -87,9 +88,54 @@
     </main>
   </div>
 
+  <!-- View Transaction Modal -->
+  <div id="view-transaction-modal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 480px;">
+      <div class="modal-header">
+        <h2>🔍 Transaction Details</h2>
+        <button id="btn-close-view-modal" class="btn-close-modal"><i data-lucide="x"></i></button>
+      </div>
+      <div style="margin-bottom: 20px;">
+        <div style="background: var(--bg-input); padding: 16px; border-radius: var(--radius-md); margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <h3 id="view-title" style="font-size: 20px; margin: 0;">—</h3>
+            <div id="view-type">—</div>
+          </div>
+          <div id="view-amount" style="font-size: 28px; font-weight: 700; margin-top: 12px;">—</div>
+        </div>
+        <div class="info-row"><span class="info-label">🏷️ Category</span><span id="view-category" class="info-value">—</span></div>
+        <div class="info-row"><span class="info-label">📅 Date</span><span id="view-date" class="info-value">—</span></div>
+        <div class="info-row"><span class="info-label">📝 Note</span><span id="view-note" class="info-value">—</span></div>
+        <div class="info-row"><span class="info-label">🕐 Created at</span><span id="view-created" class="info-value">—</span></div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-close-view-footer" class="btn-cancel">Close</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module" src="../js/dashboard.js"></script>
   <script>
     if(window.lucide) lucide.createIcons();
+    
+    // Setup view modal close handlers
+    document.addEventListener('DOMContentLoaded', () => {
+      const closeViewModal = () => {
+        const modal = document.getElementById('view-transaction-modal');
+        if (modal) modal.classList.remove('active');
+      };
+      const closeBtn = document.getElementById('btn-close-view-modal');
+      const closeFooter = document.getElementById('btn-close-view-footer');
+      const modalOverlay = document.getElementById('view-transaction-modal');
+      
+      if (closeBtn) closeBtn.addEventListener('click', closeViewModal);
+      if (closeFooter) closeFooter.addEventListener('click', closeViewModal);
+      if (modalOverlay) {
+        modalOverlay.addEventListener('click', (e) => {
+          if (e.target === modalOverlay) closeViewModal();
+        });
+      }
+    });
   </script>
 </body>
 </html>

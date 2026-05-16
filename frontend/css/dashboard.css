@@ -317,3 +317,53 @@
   .metrics-grid { grid-template-columns: 1fr; }
   .page-header { flex-direction: column; gap: 16px; }
 }
+
+.period-btn {
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.period-btn.active {
+  background: var(--grad-accent);
+  color: white;
+  box-shadow: 0 2px 8px rgba(244, 63, 94, 0.3);
+}
+
+.period-btn:hover:not(.active) {
+  background: rgba(0,0,0,0.05);
+  color: var(--text-main);
+}
+
+#period-selector {
+  animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.category-item {
+  transition: all 0.3s ease;
+}
+
+.category-item:hover {
+  transform: translateX(5px);
+  box-shadow: var(--shadow-sm);
+}
+
+.quick-metrics-extended .info-row {
+  transition: all 0.2s ease;
+}
+
+.quick-metrics-extended .info-row:hover {
+  background: var(--bg-input);
+  padding-left: 8px;
+  border-radius: 8px;
+}

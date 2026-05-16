@@ -23,6 +23,8 @@
         </button>
       </header>
 
+      <!-- Filter bar will be injected here by JavaScript -->
+      
       <section class="content-block">
         <h2>📊 Transaction History</h2>
         <div class="table-responsive">
@@ -38,6 +40,7 @@
               </tr>
             </thead>
             <tbody id="transactions-table-body">
+              <tr><td colspan="6" style="text-align: center; padding: 40px;">Loading transactions... 🔄</td></tr>
             </tbody>
           </table>
         </div>
@@ -126,16 +129,25 @@
 
   <script type="module" src="../js/transactions.js"></script>
   <script>
+    if(window.lucide) lucide.createIcons();
+    
+    // Setup view modal close handlers
     document.addEventListener('DOMContentLoaded', () => {
       const closeViewModal = () => {
-        document.getElementById('view-transaction-modal').classList.remove('active');
+        const modal = document.getElementById('view-transaction-modal');
+        if (modal) modal.classList.remove('active');
       };
-      document.getElementById('btn-close-view-modal')?.addEventListener('click', closeViewModal);
-      document.getElementById('btn-close-view-footer')?.addEventListener('click', closeViewModal);
-      document.getElementById('view-transaction-modal')?.addEventListener('click', (e) => {
-        if(e.target === document.getElementById('view-transaction-modal')) closeViewModal();
-      });
-      if(window.lucide) lucide.createIcons();
+      const closeBtn = document.getElementById('btn-close-view-modal');
+      const closeFooter = document.getElementById('btn-close-view-footer');
+      const modalOverlay = document.getElementById('view-transaction-modal');
+      
+      if (closeBtn) closeBtn.addEventListener('click', closeViewModal);
+      if (closeFooter) closeFooter.addEventListener('click', closeViewModal);
+      if (modalOverlay) {
+        modalOverlay.addEventListener('click', (e) => {
+          if (e.target === modalOverlay) closeViewModal();
+        });
+      }
     });
   </script>
 </body>

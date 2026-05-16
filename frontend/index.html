@@ -8,7 +8,6 @@
 </head>
 <body>
   <script type="module">
-    import { Auth } from './js/auth.js';
     const token = localStorage.getItem('token');
     if (token) {
       window.location.href = 'pages/dashboard.html';
@@ -16,5 +15,11 @@
       window.location.href = 'pages/login.html';
     }
   </script>
+  <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: system-ui;">
+    <div style="text-align: center;">
+      <div style="font-size: 48px; margin-bottom: 16px;">💰</div>
+      <div style="font-size: 18px; color: #64748b;">Loading BudgetFlow...</div>
+    </div>
+  </div>
 </body>
 </html>

@@ -13,6 +13,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const transactionForm = document.getElementById('transaction-form');
   const modalTitle = document.getElementById('modal-form-title');
 
+  // Add period filter to transactions page
+  const pageHeader = document.querySelector('.page-header');
+  if (pageHeader && !document.getElementById('transactions-period-filter')) {
+    const filterDiv = document.createElement('div');
+    filterDiv.id = 'transactions-period-filter';
+    filterDiv.style.cssText = 'margin-bottom: 24px; background: var(--bg-card-white); border-radius: var(--radius-md); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;';
+    filterDiv.innerHTML = `
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span style="font-weight: 700;">📅 Filter:</span>
+        <select id="filter-type" style="padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border);">
+          <option value="all">🌍 All Time</option>
+          <option value="income">💰 Income Only</option>
+          <option value="expense">💸 Expense Only</option>
+        </select>
+        <select id="filter-category" style="padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border);">
+          <option value="all">🏷️ All Categories</option>
+        </select>
+      </div>
+      <div style="font-size: 13px; color: var(--text-muted);" id="transaction-count">📊 0 transactions</div>
+    `;
+    pageHeader.parentNode.insertBefore(filterDiv, pageHeader.nextSibling);
+  }
+
   // Open modal config for CREATE operation
   if(btnOpenModal) {
     btnOpenModal.addEventListener('click', () => {
@@ -59,6 +82,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Populate category filter
+  async function populateCategoryFilter(transactions) {
+    const categoryFilter = document.getElementById('filter-category');
+    if (!categoryFilter) return;
+    
+    const categories = new Set();
+    transactions.forEach(t => categories.add(t.category));
+    
+    categoryFilter.innerHTML = '<option value="all">🏷️ All Categories</option>' + 
+      Array.from(categories).sort().map(cat => `<option value="${cat}">📌 ${cat}</option>`).join('');
+  }
+
   // Fetch log collection and map to tabular structure
   async function loadTransactions() {
     const tableBody = document.getElementById('transactions-table-body');
@@ -66,12 +101,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const data = await API.get('/transactions');
-      const list = data.transactions || [];
+      let list = data.transactions || [];
+      
+      // Apply filters
+      const filterType = document.getElementById('filter-type')?.value || 'all';
+      const filterCategory = document.getElementById('filter-category')?.value || 'all';
+      
+      if (filterType !== 'all') {
+        list = list.filter(t => t.type === filterType);
+      }
+      if (filterCategory !== 'all') {
+        list = list.filter(t => t.category === filterCategory);
+      }
+      
+      // Update transaction count
+      const countSpan = document.getElementById('transaction-count');
+      if (countSpan) countSpan.innerHTML = `📊 ${list.length} transaction${list.length !== 1 ? 's' : ''}`;
+      
+      // Populate category filter with all transactions (not filtered)
+      await populateCategoryFilter(data.transactions || []);
 
       if (list.length === 0) {
         tableBody.innerHTML = `
           <tr>
-            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 32px;">
+            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 48px;">
               📭 No records found. Click the button above to add a new transaction log!
             </td>
           </tr>
@@ -95,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <div style="display: flex; gap: 12px;">
                 <button class="btn-view-trans" 
                         data-id="${item._id}" 
-                        style="background:transparent; border:none; cursor:pointer; color:var(--text-muted);" 
+                        style="background:transparent; border:none; cursor:pointer; color:var(--text-muted); font-size: 18px;" 
                         title="👁️ View Details">
                   👁️
                 </button>
@@ -107,18 +160,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         data-category="${item.category}"
                         data-date="${cleanDate}"
                         data-note="${item.note || ''}"
-                        style="background:transparent; border:none; cursor:pointer; color:var(--text-muted);"
+                        style="background:transparent; border:none; cursor:pointer; color:var(--text-muted); font-size: 18px;"
                         title="✏️ Edit">
                   ✏️
                 </button>
-                <button class="btn-delete-trans" data-id="${item._id}" style="background:transparent; border:none; cursor:pointer; color:var(--text-muted);" title="🗑️ Delete">
+                <button class="btn-delete-trans" data-id="${item._id}" style="background:transparent; border:none; cursor:pointer; color:var(--text-muted); font-size: 18px;" title="🗑️ Delete">
                   🗑️
                 </button>
               </div>
             </td>
           </tr>
         `;
-      }).join('');
+      }).join("");
 
       // Setup Listeners for View Button (getTransactionById)
       document.querySelectorAll('.btn-view-trans').forEach(btn => {
@@ -181,6 +234,19 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         });
       });
+
+      // Setup filter listeners
+      const filterTypeSelect = document.getElementById('filter-type');
+      const filterCategorySelect = document.getElementById('filter-category');
+      
+      if (filterTypeSelect) {
+        filterTypeSelect.removeEventListener('change', loadTransactions);
+        filterTypeSelect.addEventListener('change', loadTransactions);
+      }
+      if (filterCategorySelect) {
+        filterCategorySelect.removeEventListener('change', loadTransactions);
+        filterCategorySelect.addEventListener('change', loadTransactions);
+      }
 
       if (window.lucide) window.lucide.createIcons();
 
