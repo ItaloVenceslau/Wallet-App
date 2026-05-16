@@ -1,5 +1,5 @@
 // API Configuration
-const API_URL = process.env.BACKEND;
+const API_URL = "https://wallet-app-pe7z.onrender.com/api";
 
 const api = {
     async request(endpoint, method = 'GET', data = null, requiresAuth = true) {
