@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnOpenModal.addEventListener('click', () => {
       transactionForm.reset();
       document.getElementById('t-id').value = ""; 
-      modalTitle.innerText = "New Transaction";
+      if(modalTitle) modalTitle.innerText = "✨ New Transaction";
       UI.openModal('transaction-modal');
     });
   }
@@ -43,13 +43,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       try {
         if (id) {
-          // Triggers router.put("/:id") from your Express application
           await API.put(`/transactions/${id}`, payload);
-          UI.showToast('Transaction data updated successfully!', 'success');
+          UI.showToast('✏️ Transaction updated successfully!', 'success');
         } else {
-          // Triggers router.post("/") from your Express application
           await API.post('/transactions', payload);
-          UI.showToast('Transaction saved successfully!', 'success');
+          UI.showToast('✅ Transaction saved successfully!', 'success');
         }
         
         UI.closeModal('transaction-modal');
@@ -74,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tableBody.innerHTML = `
           <tr>
             <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 32px;">
-              No records found. Click the button above to add a new transaction log!
+              📭 No records found. Click the button above to add a new transaction log!
             </td>
           </tr>
         `;
@@ -82,13 +80,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       tableBody.innerHTML = list.map(item => {
-        // Splits timestamp to safe ISO format required by input elements (YYYY-MM-DD)
         const cleanDate = item.date ? item.date.split('T')[0] : '';
         
         return `
           <tr>
             <td><strong>${item.title}</strong></td>
-            <td><span class="badge ${item.type === 'income' ? 'income' : 'expense'}">${item.type === 'income' ? 'Income' : 'Expense'}</span></td>
+            <td><span class="badge ${item.type === 'income' ? 'income' : 'expense'}">${item.type === 'income' ? '💰 Income' : '💸 Expense'}</span></td>
             <td class="${item.type === 'income' ? 'text-success' : 'text-danger'}" style="font-weight: 600;">
               ${item.type === 'income' ? '+' : '-'} ${UI.formatCurrency(item.amount)}
             </td>
@@ -96,6 +93,12 @@ document.addEventListener('DOMContentLoaded', () => {
             <td>${UI.formatDate(item.date)}</td>
             <td>
               <div style="display: flex; gap: 12px;">
+                <button class="btn-view-trans" 
+                        data-id="${item._id}" 
+                        style="background:transparent; border:none; cursor:pointer; color:var(--text-muted);" 
+                        title="👁️ View Details">
+                  👁️
+                </button>
                 <button class="btn-edit-trans" 
                         data-id="${item._id}" 
                         data-title="${item.title}"
@@ -104,17 +107,46 @@ document.addEventListener('DOMContentLoaded', () => {
                         data-category="${item.category}"
                         data-date="${cleanDate}"
                         data-note="${item.note || ''}"
-                        style="background:transparent; border:none; cursor:pointer; color:var(--text-muted);">
-                  <i data-lucide="edit-3" style="width: 18px; height: 18px;"></i>
+                        style="background:transparent; border:none; cursor:pointer; color:var(--text-muted);"
+                        title="✏️ Edit">
+                  ✏️
                 </button>
-                <button class="btn-delete-trans" data-id="${item._id}" style="background:transparent; border:none; cursor:pointer; color:var(--text-muted);">
-                  <i data-lucide="trash-2" style="width: 18px; height: 18px;"></i>
+                <button class="btn-delete-trans" data-id="${item._id}" style="background:transparent; border:none; cursor:pointer; color:var(--text-muted);" title="🗑️ Delete">
+                  🗑️
                 </button>
               </div>
             </td>
           </tr>
         `;
       }).join('');
+
+      // Setup Listeners for View Button (getTransactionById)
+      document.querySelectorAll('.btn-view-trans').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const id = btn.getAttribute('data-id');
+          try {
+            const transaction = await API.get(`/transactions/${id}`);
+            if (transaction && transaction.transaction) {
+              const t = transaction.transaction;
+              const viewModal = document.getElementById('view-transaction-modal');
+              if (viewModal) {
+                document.getElementById('view-title').innerText = t.title || '—';
+                document.getElementById('view-amount').innerHTML = `${t.type === 'income' ? '💰' : '💸'} ${UI.formatCurrency(t.amount)}`;
+                document.getElementById('view-type').innerHTML = `<span class="badge ${t.type === 'income' ? 'income' : 'expense'}">${t.type === 'income' ? 'Income' : 'Expense'}</span>`;
+                document.getElementById('view-category').innerText = t.category || '—';
+                document.getElementById('view-date').innerText = UI.formatDate(t.date);
+                document.getElementById('view-note').innerText = t.note || 'No additional notes';
+                document.getElementById('view-created').innerText = t.createdAt ? new Date(t.createdAt).toLocaleString() : '—';
+                viewModal.classList.add('active');
+              } else {
+                UI.showToast(JSON.stringify(t, null, 2), 'info');
+              }
+            }
+          } catch (err) {
+            UI.showToast('Failed to load transaction details', 'error');
+          }
+        });
+      });
 
       // Setup Listeners for Edit Button
       document.querySelectorAll('.btn-edit-trans').forEach(btn => {
@@ -129,19 +161,19 @@ document.addEventListener('DOMContentLoaded', () => {
           document.getElementById('t-date').value = target.getAttribute('data-date');
           document.getElementById('t-note').value = target.getAttribute('data-note');
 
-          modalTitle.innerText = "Edit Transaction";
+          if(modalTitle) modalTitle.innerText = "✏️ Edit Transaction";
           UI.openModal('transaction-modal');
         });
       });
 
-      // Setup Listeners for Delete Button (Triggers router.delete("/:id"))
+      // Setup Listeners for Delete Button
       document.querySelectorAll('.btn-delete-trans').forEach(btn => {
         btn.addEventListener('click', async (e) => {
           const id = e.currentTarget.getAttribute('data-id');
-          if (confirm('Are you sure you want to delete this transaction record?')) {
+          if (confirm('🗑️ Are you sure you want to delete this transaction record?')) {
             try {
               await API.delete(`/transactions/${id}`);
-              UI.showToast('Transaction record deleted successfully.');
+              UI.showToast('✅ Transaction deleted successfully!', 'success');
               loadTransactions();
             } catch (err) {
               UI.showToast(err.message, 'error');

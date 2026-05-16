@@ -16,7 +16,6 @@ export const UI = {
     }, 3500);
   },
 
-  // Formats numbers into US currency format ($1,500.00)
   formatCurrency(value) {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -24,7 +23,6 @@ export const UI = {
     }).format(value);
   },
 
-  // Formats MongoDB date strings to international standard (MM/DD/YYYY)
   formatDate(dateString) {
     if (!dateString) return '-';
     const date = new Date(dateString);

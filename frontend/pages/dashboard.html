@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BudgetFlow - Dashboard</title>
+  <title>BudgetFlow - Dashboard 📊</title>
   <link rel="stylesheet" href="../css/main.css">
-  <script src="https://unpkg.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 
@@ -15,19 +15,18 @@
     <main class="main-content">
       <header class="page-header">
         <div class="page-title-area">
-          <h1>Dashboard</h1>
-          <p>Overview of your projects and cash flow</p>
+          <h1>📊 Dashboard</h1>
+          <p>Overview of your projects and cash flow 💰</p>
         </div>
         <a href="transactions.html" class="btn-action">
-          <i data-lucide="plus" style="width: 16px; height: 16px;"></i> New Transaction
+          <i data-lucide="plus" style="width: 16px; height: 16px;"></i> ✨ New Transaction
         </a>
       </header>
 
-      <!-- Metric Cards Grid -->
       <section class="metrics-grid">
         <div class="metric-card card-balance">
           <div class="metric-card-header">
-            <span class="metric-title">Total Balance</span>
+            <span class="metric-title">⚖️ Total Balance</span>
             <div class="metric-icon-wrapper"><i data-lucide="scale" style="width: 16px; height: 16px;"></i></div>
           </div>
           <div id="total-balance" class="metric-value">$0.00</div>
@@ -35,7 +34,7 @@
 
         <div class="metric-card card-income">
           <div class="metric-card-header">
-            <span class="metric-title">Total Income</span>
+            <span class="metric-title">💰 Total Income</span>
             <div class="metric-icon-wrapper"><i data-lucide="trending-up" style="width: 16px; height: 16px;"></i></div>
           </div>
           <div id="total-income" class="metric-value">$0.00</div>
@@ -43,7 +42,7 @@
 
         <div class="metric-card card-expense">
           <div class="metric-card-header">
-            <span class="metric-title">Total Expenses</span>
+            <span class="metric-title">💸 Total Expenses</span>
             <div class="metric-icon-wrapper"><i data-lucide="trending-down" style="width: 16px; height: 16px;"></i></div>
           </div>
           <div id="total-expenses" class="metric-value">$0.00</div>
@@ -51,30 +50,28 @@
 
         <div class="metric-card card-neutral">
           <div class="metric-card-header">
-            <span class="metric-title">Monthly Count</span>
+            <span class="metric-title">📈 Monthly Count</span>
             <div class="metric-icon-wrapper"><i data-lucide="activity" style="width: 16px; height: 16px;"></i></div>
           </div>
           <div id="total-count" class="metric-value">0</div>
         </div>
       </section>
 
-      <!-- Bottom Panel for Analytics -->
       <section class="content-block">
-        <h2>Expenses by Category</h2>
-        <p>Breakdown of current monthly costs processed by the system.</p>
+        <h2>📊 Expenses by Category</h2>
+        <p>Breakdown of current monthly costs processed by the system 📉</p>
         
         <div id="categories-list">
-          <!-- Injected dynamically via js/dashboard.js -->
         </div>
 
         <div style="margin-top: 32px; border-top: 1px solid #e2e8f0; padding-top: 24px;">
-          <h2>Quick Metrics</h2>
+          <h2>📈 Quick Metrics</h2>
           <div class="info-row">
-            <span class="info-label">Total processed entries</span>
+            <span class="info-label">📋 Total processed entries</span>
             <span id="summary-count" class="info-value">0</span>
           </div>
           <div class="info-row">
-            <span class="info-label">Average income amount</span>
+            <span class="info-label">📊 Average income amount</span>
             <span id="summary-avg" class="info-value text-success">$0.00</span>
           </div>
         </div>
@@ -83,5 +80,8 @@
   </div>
 
   <script type="module" src="../js/dashboard.js"></script>
+  <script>
+    if(window.lucide) lucide.createIcons();
+  </script>
 </body>
 </html>
