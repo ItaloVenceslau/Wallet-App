@@ -5,7 +5,6 @@ export const Sidebar = {
     const sidebarContainer = document.getElementById('sidebar-container');
     if (!sidebarContainer) return;
 
-    // Injects the menu elements completely in English
     sidebarContainer.innerHTML = `
       <aside class="sidebar">
         <div class="sidebar-brand">
@@ -30,6 +29,15 @@ export const Sidebar = {
           </li>
         </ul>
 
+        <!-- User Profile Avatar Image Section -->
+        <div class="sidebar-user-profile" style="display: flex; align-items: center; gap: 12px; padding: 16px 8px; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.08); margin-bottom: 8px;">
+          <img src="https://dicebear.com" alt="Avatar Graphic" style="width: 36px; height: 36px; border-radius: 50%; background: var(--grad-accent); padding: 2px;">
+          <div class="user-info-text" style="display: flex; flex-direction: column;">
+            <span style="font-size: 13px; font-weight: 600; color: #ffffff;">Active User</span>
+            <span style="font-size: 11px; color: #94a3b8;">Verified Node</span>
+          </div>
+        </div>
+
         <button id="btn-logout-sidebar" class="btn-logout">
           <i data-lucide="log-out" style="width: 18px; height: 18px;"></i>
           <span>Sign Out</span>
@@ -37,12 +45,10 @@ export const Sidebar = {
       </aside>
     `;
 
-    // Attaches the sign out event listener
     document.getElementById('btn-logout-sidebar').addEventListener('click', () => {
       Auth.logout();
     });
 
-    // Reinitializes the dynamic icons stack
     if (window.lucide) {
       window.lucide.createIcons();
     }

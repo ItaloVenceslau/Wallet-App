@@ -6,7 +6,7 @@
   min-height: 100vh;
 }
 
-/* Barra Lateral Fixa (Inspirada no seu print original) */
+/* Fixed Sidebar Layout */
 .sidebar {
   width: 260px;
   background: var(--bg-sidebar);
@@ -84,7 +84,6 @@
   text-align: left;
   border-radius: var(--radius-md);
   transition: var(--transition);
-  margin-top: auto;
 }
 
 .btn-logout:hover {
@@ -92,7 +91,7 @@
   color: #ef4444;
 }
 
-/* Área de Conteúdo Principal */
+/* Main Screen Wrapper */
 .main-content {
   margin-left: 260px;
   flex-grow: 1;
@@ -140,7 +139,7 @@
   box-shadow: 0 6px 16px rgba(244, 63, 94, 0.35);
 }
 
-/* Grid de Cards de Métricas (Bento Box Layout) */
+/* Bento Cards Grid System */
 .metrics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -157,12 +156,39 @@
   justify-content: space-between;
   min-height: 130px;
   box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background abstract shapes for cards */
+.metric-card-pattern {
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 120px;
+  height: 120px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.metric-card-pattern::after {
+  content: '';
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 35% 65% 70% 30% / 30% 30% 70% 70%;
 }
 
 .metric-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: relative;
+  z-index: 2;
 }
 
 .metric-title {
@@ -186,15 +212,16 @@
   font-size: 28px;
   font-weight: 700;
   margin-top: 16px;
+  position: relative;
+  z-index: 2;
 }
 
-/* Acoplamento de Gradientes aos Cards */
 .card-income { background: var(--grad-income); }
 .card-expense { background: var(--grad-expense); }
 .card-balance { background: var(--grad-balance); }
 .card-neutral { background: var(--grad-neutral); }
 
-/* Painéis brancos de conteúdo abaixo do Grid */
+/* Block Panels */
 .content-block {
   background: var(--bg-card-white);
   border: 1px solid #e2e8f0;
@@ -222,7 +249,7 @@
 .info-value { font-weight: 600; color: var(--text-main); }
 .empty-state-text { text-align: center; color: var(--text-muted); padding: 24px 0; }
 
-/* Estrutura das tabelas */
+/* Table Elements */
 .table-responsive { width: 100%; overflow-x: auto; }
 .data-table { width: 100%; border-collapse: collapse; text-align: left; }
 .data-table th {
@@ -236,15 +263,15 @@
 .data-table td { padding: 16px; border-bottom: 1px solid #e2e8f0; font-size: 15px; }
 .data-table tr:last-child td { border-bottom: none; }
 
-/* Badges de Linha */
 .badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; }
 .badge.income { background: #e6f4ea; color: var(--text-success); }
 .badge.expense { background: #fce8e6; color: var(--text-danger); }
 
-/* Responsividade Mobile/Tablet */
+/* Adaptive Responsive Configurations */
 @media (max-width: 900px) {
   .sidebar { width: 80px; padding: 16px 8px; align-items: center; }
-  .sidebar-brand span, .sidebar-link span, .btn-logout span { display: none; }
+  .sidebar-brand span, .sidebar-link span, .btn-logout span, .sidebar-user-profile .user-info-text { display: none; }
   .sidebar-brand { margin-bottom: 24px; padding: 0; }
+  .sidebar-user-profile { border-top: none !important; padding: 8px 0 !important; }
   .main-content { margin-left: 80px; padding: 24px; }
 }
